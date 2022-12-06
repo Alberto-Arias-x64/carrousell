@@ -1,30 +1,33 @@
-const slides = document.querySelector('.slides')
-const slides_container = document.querySelector('.slides-container')
+const slides = document.querySelectorAll('.slides')
+const buttons = document.querySelectorAll('.carrousel-button')
+buttons.forEach(element => {
+    element.addEventListener('click', ({target}) => move_slider(target))
+})
 
-const slide_width = 300
-const slide_gap = 20
+                /* card + gap */
+const slide_width = 300 + 20
 const margin = 120
-let delta_scroll = 0
-let slides_view = parseInt((window.visualViewport.width - margin)/(slide_width + slide_gap))
+let delta_scroll = [0,0,0,0,0,0,0,0,0,0]
+let slides_view = parseInt((window.visualViewport.width - margin)/slide_width)
 
-slides.style.width = `${(slide_width + slide_gap) * slides_view}px`
+slides.forEach(element => element.style.width = `${slide_width * slides_view}px`)
 
-console.log (slides_view)
 window.onresize = () => {
-    let slides_view = parseInt((window.visualViewport.width - margin)/(slide_width + slide_gap))
-    slides.style.width = `${(slide_width + slide_gap) * slides_view}px`
+    slides_view = parseInt((window.visualViewport.width - margin)/slide_width)
+    slides.forEach(element => element.style.width = `${slide_width * slides_view}px`)
 }
 
-const button_right = document.querySelector('.button_right')
-const button_left = document.querySelector('.button_left')
-
-button_right.addEventListener('click', () => move_slider(true))
-button_left.addEventListener('click', () => move_slider(false))
-
-const move_slider = (move) => {
-    if (move) delta_scroll -= (slide_width + slide_gap)
-    else delta_scroll += (slide_width + slide_gap)
-    if ((delta_scroll * -1) < 0) delta_scroll = 0
-    if ((delta_scroll * -1) > (slides_container.childElementCount - slides_view) * (slide_width + slide_gap)) delta_scroll = 0
-    slides_container.style = `transform: translateX(${delta_scroll}px)`
+const move_slider = (target) => {
+    const move = target.dataset.type
+    const container_id = target.parentNode.parentNode.dataset.id
+    const container = document.querySelectorAll(`.slides-container`)
+    let slides_container
+    container.forEach(element => {
+        if (element.dataset.id == container_id) slides_container = element
+    })
+    if (move) delta_scroll[container_id] -= slide_width
+    else delta_scroll[container_id] += slide_width
+    if ((delta_scroll[container_id] * -1) < 0) delta_scroll[container_id] = 0
+    if ((delta_scroll[container_id] * -1) > ((slides_container.childElementCount - slides_view) * slide_width)) delta_scroll[container_id] = 0
+    slides_container.style = `transform: translateX(${delta_scroll[container_id]}px)`
 }
